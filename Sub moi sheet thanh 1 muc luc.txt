@@ -1,0 +1,39 @@
+Sub TaoMucLuc_NangCao()
+    ' Ô đặt link "Về mục lục" trên mỗi sheet. Chọn ô TRỐNG, đừng chọn ô có dữ liệu.
+    Const O_VE_MUC_LUC As String = "Z1"
+    
+    Dim ws As Worksheet, wsMuc As Worksheet, r As Long
+    
+    Application.ScreenUpdating = False
+    Application.DisplayAlerts = False
+    On Error Resume Next
+    ThisWorkbook.Sheets("MucLuc").Delete
+    On Error GoTo 0
+    Application.DisplayAlerts = True
+    
+    Set wsMuc = ThisWorkbook.Sheets.Add(Before:=ThisWorkbook.Sheets(1))
+    wsMuc.Name = "MucLuc"
+    wsMuc.Range("A1").Value = "STT"
+    wsMuc.Range("B1").Value = "TÊN SHEET"
+    wsMuc.Range("A1:B1").Font.Bold = True
+    r = 2
+    
+    For Each ws In ThisWorkbook.Worksheets
+        If ws.Name <> "MucLuc" And ws.Visible = xlSheetVisible Then
+            ' Chiều đi: mục lục -> sheet
+            wsMuc.Cells(r, 1).Value = r - 1
+            wsMuc.Hyperlinks.Add Anchor:=wsMuc.Cells(r, 2), Address:="", _
+                SubAddress:="'" & ws.Name & "'!A1", TextToDisplay:=ws.Name
+            
+            ' Chiều về: sheet -> mục lục
+            ws.Hyperlinks.Add Anchor:=ws.Range(O_VE_MUC_LUC), Address:="", _
+                SubAddress:="'MucLuc'!A1", TextToDisplay:="← Về mục lục"
+            r = r + 1
+        End If
+    Next ws
+    
+    wsMuc.Columns("A:B").AutoFit
+    wsMuc.Activate
+    Application.ScreenUpdating = True
+    MsgBox "Đã tạo mục lục cho " & (r - 2) & " sheet!", vbInformation
+End Sub
